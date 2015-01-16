@@ -15,11 +15,11 @@ Installing with mod_mam:
 
 -   Install ejabberd
 ``` bash
-  $ git clone git://github.com/DarkSideF/ejabberd.git
+  $ git clone git://github.com/DarkSideF/ejabberd.git ejabberd
   $ cd ejabberd
-  $ git checkout odbc_mode -b odbc_mode
+  $ git checkout odbc_mode -b odbc_mode 
   $ ./autogen.sh
-  $ ./configure --enable-odbc
+  $ ./configure --enable-odbc --enable-psql
   $ make
   $ sudo make install
 ```
@@ -34,10 +34,9 @@ odbc_database: "ddsdabberd"
 odbc_password: "dschadsas"
 modules:
   mod_mam:
+``` 
 
-```
-
-mod_mam source: `https://github.com/kongo2002/ejabberd-mod-mam`
+mod_mam source: `https://github.com/sdcr/ejabberd-mod-mam`
 
 Ejabberd Community Edition, by ProcessOne
 -----------------------------------------
