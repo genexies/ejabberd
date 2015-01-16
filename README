@@ -17,20 +17,24 @@ Installing with mod_mam:
 ``` bash
   $ git clone git://github.com/DarkSideF/ejabberd.git
   $ cd ejabberd
+  $ git checkout odbc_mode -b odbc_mode
   $ ./autogen.sh
-  $ ./configure
+  $ ./configure --enable-odbc
   $ make
   $ sudo make install
 ```
 
 -   Add config for mod_mam like:
 ``` yaml
+odbc_type: pgsql
+odbc_server: "localhost"
+odbc_port: 5432
+odbc_pool_size: 1
+odbc_database: "ddsdabberd"
+odbc_password: "dschadsas"
 modules:
   mod_mam:
-    mongo:
-      localhost: 27017
-    mongo_database: test
-    mongo_collection: messages
+
 ```
 
 mod_mam source: `https://github.com/kongo2002/ejabberd-mod-mam`
