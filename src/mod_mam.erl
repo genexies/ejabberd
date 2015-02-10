@@ -39,7 +39,7 @@
          start/2,
          stop/1,
          send_packet/3,
-         receive_packet/4,
+%         receive_packet/4,
          get_disco_features/5,
          process_iq/3,
          process_local_iq/3
@@ -129,15 +129,32 @@ stop(Host) ->
     supervisor:terminate_child(ejabberd_sup, Proc),
     supervisor:delete_child(ejabberd_sup, Proc).
 
+% https://blog.kempkens.io/posts/joining-a-list-of-binaries-in-erlang/
+-spec binary_join([binary()], binary()) -> binary().
+binary_join([], _Sep) ->
+  <<>>;
+binary_join([Part], _Sep) ->
+  Part;
+binary_join([Head|Tail], Sep) ->
+  lists:foldl(fun (Value, Acc) -> <<Acc/binary, Sep/binary, Value/binary>> end, Head, Tail).
+
 send_packet(From, To, Packet) ->
     Host = From#jid.lserver,
     Proc = get_proc(Host),
-    gen_server:cast(Proc, {log, to, From#jid.luser, Host, To, Packet}).
+    gen_server:cast(Proc, {log, to, From#jid.luser, Host, To, Packet}),
+    FromBareJid = binary_join([From#jid.luser, From#jid.lserver], <<"@">>),
+    FromAttribute = [{<<"from">>, FromBareJid}],
+    NewPacket = #xmlel{
+      name = Packet#xmlel.name,
+      attrs = lists:append(Packet#xmlel.attrs, FromAttribute),
+      children = Packet#xmlel.children
+    },
+    gen_server:cast(Proc, {log, from, To#jid.luser, Host, From, NewPacket}).
 
-receive_packet(_Jid, From, To, Packet) ->
-    Host = To#jid.lserver,
-    Proc = get_proc(Host),
-    gen_server:cast(Proc, {log, from, To#jid.luser, Host, From, Packet}).
+%receive_packet(_Jid, From, To, Packet) ->
+%    Host = To#jid.lserver,
+%    Proc = get_proc(Host),
+%    gen_server:cast(Proc, {log, from, To#jid.luser, Host, From, Packet}).
 
 
 %%%-------------------------------------------------------------------
@@ -220,7 +237,7 @@ init([Host, Opts]) ->
 
     % hook into send/receive packet
     ejabberd_hooks:add(user_send_packet, Host, ?MODULE, send_packet, 80),
-    ejabberd_hooks:add(user_receive_packet, Host, ?MODULE, receive_packet, 80),
+%    ejabberd_hooks:add(user_receive_packet, Host, ?MODULE, receive_packet, 80),
     ejabberd_hooks:add(disco_local_features, Host, ?MODULE, get_disco_features, 99),
     ejabberd_hooks:add(disco_sm_features, Host, ?MODULE, get_disco_features, 99),
 
@@ -364,7 +381,7 @@ terminate(_Reason, State) ->
     ?INFO_MSG("Stopping mod_mam module of '~s'", [Host]),
 
     ejabberd_hooks:delete(user_send_packet, Host, ?MODULE, send_packet, 80),
-    ejabberd_hooks:delete(user_receive_packet, Host, ?MODULE, receive_packet, 80),
+%    ejabberd_hooks:delete(user_receive_packet, Host, ?MODULE, receive_packet, 80),
     ejabberd_hooks:delete(disco_local_features, Host, ?MODULE, get_disco_features, 99),
     ejabberd_hooks:delete(disco_sm_features, Host, ?MODULE, get_disco_features, 99),
 
