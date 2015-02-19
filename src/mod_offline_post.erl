@@ -59,22 +59,18 @@ stop(Host) ->
     ok.
 
 send_notice(_From, To, Packet) ->
-    Type = xml:get_tag_attr_s("type", Packet),
-    Body = xml:get_path_s(Packet, [{elem, "body"}, cdata]),
-    Token = gen_mod:get_module_opt(To#jid.lserver, ?MODULE, auth_token, [] ),
-    PostUrl = gen_mod:get_module_opt(To#jid.lserver, ?MODULE, post_url, [] ),
+    Type = xml:get_tag_attr_s(list_to_binary("type"), Packet),
+    Body = xml:get_tag_cdata(xml:get_subtag(Packet, <<"body">>)),
     if
-	(Type == "chat") and (Body /= "") ->
-	  Sep = "&",
-	  Post = [
-	    "to=", To#jid.luser, Sep,
-	    "from=", _From#jid.luser, Sep,
-	    "body=", Body, Sep,
-	    "access_token=", Token ],
-	  ?INFO_MSG("Sending post request ~p~n",[Post] ),
-	  httpc:request(post, {PostUrl, [], "application/x-www-form-urlencoded", list_to_binary(Post)},[],[]),
-	  ok;
-	true ->
-	  ok
+        (Type == <<"chat">>) and (Body /= <<"">>) and (Body /= <<>>)->
+            PostUrl = binary_to_list(gen_mod:get_module_opt(To#jid.lserver, ?MODULE, post_url, fun(A) -> A end, [])),
+            Sep = "&",
+            Post = [
+                "from=", _From#jid.luser, "@", _From#jid.lserver, Sep,
+                "to=", To#jid.luser, "@", To#jid.lserver],
+            ?INFO_MSG("Sending post request ~p~n", [Post]),
+            httpc:request(post, {PostUrl, [], "application/x-www-form-urlencoded", list_to_binary(Post)},[],[]),
+            ok;
+        true ->
+            ok
     end.
-
