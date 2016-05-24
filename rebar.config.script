@@ -54,7 +54,7 @@ Deps = [{p1_cache_tab, ".*", {git, "git://github.com/processone/cache_tab", "f7e
         {p1_stringprep, ".*", {git, "git://github.com/processone/stringprep", "1.0.0"}},
         {p1_xml, ".*", {git, "git://github.com/processone/xml", "1.1.2"}},
 	{esip, ".*", {git, "git://github.com/processone/p1_sip", "1.0.1"}},
-	{p1_stun, ".*", {git, "git://github.com/processone/stun", "1.0.3"}},
+	{p1_stun, ".*", {git, "git://github.com/processone/stun", "0.9.0"}},
         {p1_yaml, ".*", {git, "git://github.com/processone/p1_yaml", "1.0.1"}},
         {ehyperloglog, ".*", {git, "https://github.com/vaxelfel/eHyperLogLog.git", "efd14f262c663cde76d8ed48007826dabe9aca41"}},
         {p1_utils, ".*", {git, "git://github.com/processone/p1_utils", "1.0.4"}}],
